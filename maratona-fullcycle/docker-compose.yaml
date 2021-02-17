@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  driver: 
+    container_name: driver
+    build: ./driver
+    ports:
+      - 3000:3000
+    networks:
+      - network
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
+  simulator: 
+    container_name: simulator
+    build: ./simulator
+    ports:
+      - 3001:3000
+    networks:
+      - network
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    restart: always
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./rabbitmq:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    networks:
+      - network
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
+networks:
+  network:
+    driver: bridge
